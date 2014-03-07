@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=10" />
+    <title>XSOdata Service Browser</title>
+    <link rel="stylesheet" type="text/css" href="Content/odata-query-builder.css">
+    <link rel="stylesheet" type="text/css" href="Content/bootstrap.css">
+    
+    <script src="../../sap/ui5/1/resources/sap-ui-core.js"
+                id="sap-ui-bootstrap"
+				data-sap-ui-libs="sap.m"
+				data-sap-ui-theme="sap_bluecrystal">
+				
+    
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.0.min.js"></script>
+    <script type="text/javascript" src="scripts/datajs-1.1.1.min.js"></script>
+    <script type="text/javascript" src="scripts/odata-query-builder.js"></script>
+    <script src="scripts/client.js"></script>
+   
+    
+    <script type="text/javascript">
+	var arr = new Array();
+	var arrPackages = new Array();
+	var hana = new HanaTalk('_SYS_REPO');
+	
+	var strPackages = hana.executeRecordSetObj("SELECT DISTINCT package_id AS packages, count(*) as cnt FROM _SYS_REPO.runtime_objects WHERE object_suffix = 'xsodatart' GROUP BY package_id");
+	var objPackages = jQuery.parseJSON(strPackages);
+	
+	$.each(objPackages, function( key, val ) {
+		arrPackages.push(new sap.m.StandardListItem(val.PACKAGES, {title : val.PACKAGES, description: val.CNT + ' Services'}));
+	});
+	
+	var oSplitApp = new sap.m.SplitApp("mySplitApp", {});
+	
+	var oServicesPage = new sap.m.Page("master",{
+		title : "XSOData Service Packages",
+		navButtonPress : function() {
+			oSplitApp.backMaster();
+		},
+		content : [ new sap.m.List({
+			mode:"SingleSelectMaster",
+			select: function(oEv) {
+				updateDetail(oEv.oSource._oSelectedItem.sId);
+			},
+			items : arrPackages
+		})]
+	});
+	
+	var oDetailpage = new sap.m.Page("detail", {
+	   title : "Service Details",
+	   content :  new sap.ui.core.HTML("html1", {content:"<div id='queryBuilderContainer'></div>"})
+	});
+	
+	oSplitApp.addMasterPage(oServicesPage);
+	oSplitApp.addDetailPage(oDetailpage)
+	
+	oSplitApp.setDefaultTransitionNameDetail("slide");
+	
+	oSplitApp.placeAt("sapUiBody");
+	
+	
+	
+	function updateDetail(packageid){
+		var strEndPoints = hana.executeRecordSetObj("select '/' || REPLACE(package_id, '.', '/') || '/' || object_name || '.xsodata' as url from _SYS_REPO.runtime_objects WHERE object_suffix = 'xsodatart' AND package_id = '" + packageid + "'");
+		var objEndPoints = jQuery.parseJSON(strEndPoints);
+		var arrEndpoints = Array();
+	   
+		$.each(objEndPoints, function( key, val ) {
+			arrEndpoints.push({url: val.URL});
+		});
+		
+		var createdQueryBuilder = new OData.explorer.DataExplorer(arrEndpoints);
+	}
+        
+        
+    </script>
+</head>
+<body id="sapUiBody"  role="application">
+</body>
+</html>
