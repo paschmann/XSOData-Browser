@@ -16,7 +16,7 @@ Install Requirements
 1. SAP HANA Instance (e.g. AWS Developer Image)
 2. Privledges to the XSOData data being queried
 
-Download/fork this repo and add to a package within XS Engine. If you would prefer, you can download a Delivery Unit here: [Delivery Unit](http://www.li-labs.com/downloads/ODATAQUERY.tgz) and install using the Life Cycle Management add in.
+Download/fork this repo and add to a package within XS Engine. If you would prefer, you can download a Delivery Unit here: [Delivery Unit](http://www.metric2.com/download.html) and install using the Life Cycle Management add in.
 
 Read More
 ----
