@@ -1,7 +1,7 @@
+![Screenshot](http://scn.sap.com/servlet/JiveServlet/downloadImage/38-103395-405030/640-335/pastedImage_0.png)
+
 XSOData Service Browser
 =========
-
-![Screenshot](http://scn.sap.com/servlet/JiveServlet/downloadImage/38-103395-405030/640-335/pastedImage_0.png)
 
 XSOData Service Browser is a small native SAP HANA XS App which displays a list of all the current XSOData services registered in your HANA instance. You can run the services to retrieve the data as well as specify where clauses, column selection, ordering and the option to expand nested entities. This gives you the ability to preview the data being returned from service, as well as a query you can use as a base to call that specific filtered dataset.
 
