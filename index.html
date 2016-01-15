@@ -1,80 +1,105 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="X-UA-Compatible" content="IE=10" />
-    <title>XSOdata Service Browser</title>
-    <link rel="stylesheet" type="text/css" href="Content/odata-query-builder.css">
-    <link rel="stylesheet" type="text/css" href="Content/bootstrap.css">
-    
-    <script src="../../sap/ui5/1/resources/sap-ui-core.js"
-                id="sap-ui-bootstrap"
-				data-sap-ui-libs="sap.m"
-				data-sap-ui-theme="sap_bluecrystal">
-				
-    
-    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.0.min.js"></script>
-    <script type="text/javascript" src="scripts/datajs-1.1.1.min.js"></script>
-    <script type="text/javascript" src="scripts/odata-query-builder.js"></script>
-    <script src="scripts/client.js"></script>
-   
-    
-    <script type="text/javascript">
-	var arr = new Array();
-	var arrPackages = new Array();
-	var hana = new HanaTalk('_SYS_REPO');
-	
-	var strPackages = hana.executeRecordSetObj("SELECT DISTINCT package_id AS packages, count(*) as cnt FROM _SYS_REPO.runtime_objects WHERE object_suffix = 'xsodatart' GROUP BY package_id");
-	var objPackages = jQuery.parseJSON(strPackages);
-	
-	$.each(objPackages, function( key, val ) {
-		arrPackages.push(new sap.m.StandardListItem(val.PACKAGES, {title : val.PACKAGES, description: val.CNT + ' Services'}));
-	});
-	
-	var oSplitApp = new sap.m.SplitApp("mySplitApp", {});
-	
-	var oServicesPage = new sap.m.Page("master",{
-		title : "XSOData Service Packages",
-		navButtonPress : function() {
-			oSplitApp.backMaster();
-		},
-		content : [ new sap.m.List({
-			mode:"SingleSelectMaster",
-			select: function(oEv) {
-				updateDetail(oEv.oSource._oSelectedItem.sId);
-			},
-			items : arrPackages
-		})]
-	});
-	
-	var oDetailpage = new sap.m.Page("detail", {
-	   title : "Service Details",
-	   content :  new sap.ui.core.HTML("html1", {content:"<div id='queryBuilderContainer'></div>"})
-	});
-	
-	oSplitApp.addMasterPage(oServicesPage);
-	oSplitApp.addDetailPage(oDetailpage)
-	
-	oSplitApp.setDefaultTransitionNameDetail("slide");
-	
-	oSplitApp.placeAt("sapUiBody");
-	
-	
-	
-	function updateDetail(packageid){
-		var strEndPoints = hana.executeRecordSetObj("select '/' || REPLACE(package_id, '.', '/') || '/' || object_name || '.xsodata' as url from _SYS_REPO.runtime_objects WHERE object_suffix = 'xsodatart' AND package_id = '" + packageid + "'");
-		var objEndPoints = jQuery.parseJSON(strEndPoints);
-		var arrEndpoints = Array();
-	   
-		$.each(objEndPoints, function( key, val ) {
-			arrEndpoints.push({url: val.URL});
-		});
+<meta charset="utf-8">
+<html> 
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Li-Labs.com - XS OData Query Builder</title>
+        <meta name="description" content="description">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="img/favicon.png">  
+
+        <!-- Vendor Stylesheets --> 
+        <link rel="stylesheet" href="css/vendor/bootstrap.min.css">
+        <link rel="stylesheet" href="css/vendor/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="css/vendor/odata-query-builder.css">
+        
+        <!-- App Stylesheets -->
+        <link rel="stylesheet" href="css/nav-style.css">
+        <link rel="stylesheet" href="css/style.css">
+        
+        <!-- Vendor JS -->
+        <script src="js/vendor/jquery-1-11-0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/vendor/datajs-1.1.1.min.js"></script>
+        <script type="text/javascript" src="js/vendor/odata-query-builder.js"></script>
 		
-		var createdQueryBuilder = new OData.explorer.DataExplorer(arrEndpoints);
-	}
-        
-        
-    </script>
-</head>
-<body id="sapUiBody"  role="application">
-</body>
+        <!-- App JS -->
+        <script src="js/app.js"></script>
+    </head>
+    
+    <body id="body">
+        <div id="wrapper">
+            <!-- Header section across the top of the page, includes right side toolbar icons/dropdown -->
+            <div id="header" class="hidden-xs hidden-sm">
+                <div id="logoarea" class="logo-area clearfix">
+            		<a href="index.html" class="logo"></a>
+    	        </div>
+    	        
+                <div class="tools-bar">
+    		        <ul class="nav navbar-nav nav-main-xs" id="dashboards">
+                        <li><a href="#sidebar" id="btnSideBar" class="icon-toolsbar"><i class="fa fa-bars"></i></a></li>
+                    </ul>
+                </div> <!-- //tools-bar-->
+    	    </div> <!-- //header-->
+    	    
+    	    
+            
+            <!-- Left side slide out nav screen, optional but requires css -->
+            <div id="nav" class="hidden-xs hidden-sm">
+                <div id="nav-scroll">
+                    <div class="avatar-slide">
+                        <div class="avatar-detail">
+                            <div id="grav">
+                                <i class="fa fa-server fa-5x"></i>
+                            </div>
+                            <ul id="serverinfo" class="widget-slide-setting">
+                                <li>
+                                    <div class="pull-right" id="instanceid">HDB</div>
+                                    <label>Instance ID</label>
+                                </li>
+                                <li>
+                                    <div class="pull-right" id="instanceno">00</div>
+                                    <label>Instance No</label>
+                                </li>
+                                <li>&nbsp;</li>
+                                <li>
+                                    <div class="pull-right" id="hanaversion">1.00.110.00.1447753075</div>
+                                    <label>DB Version</label>
+                                </li>
+                                <li>
+                                    <div class="pull-right" id="osversion">SLES 11.4</div>
+                                    <label>OS Version</label>
+                                </li>
+                                <li>&nbsp;</li>
+                                <li>
+                                    <div class="pull-right" id="startdate">2016-01-14</div>
+                                    <label>Start Date</label>
+                                </li>
+                                <li>
+                                    <div class="pull-right" id="starttime">15:45:24</div>
+                                    <label>Start Time</label>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="avatar-link btn-group btn-group-justified">
+                            <a id="btnServices" class="btn" href="#" title="Services"><i class="fa fa-plug"></i></a>
+                            <a id="btnRefresh" class="btn" href="#" title="Refresh"><i class="fa fa-refresh"></i></a>
+                        </div>
+                    </div> <!-- //avatar-slide-->
+                    
+                    <div class="widget-collapse">
+                        <ul id="packages" class="widget-slide-setting"></ul>
+                    </div> <!-- //widget-collapse -->
+                </div><!-- //nav-scroller-->
+    	    </div> <!-- //nav-->
+    	    
+            
+            
+            <!-- Main content region in the center of the page -->
+            <div id="main">
+                <div id="queryBuilderContainer" class="container">
+                </div> <!-- //content-->
+            </div> <!-- /main -->
+        </div> <!-- //wrapper -->
+    </body>
 </html>

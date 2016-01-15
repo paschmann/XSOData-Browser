@@ -18,7 +18,7 @@ OData.explorer.constants = OData.explorer.constants || {};
 
 // Constants.
 OData.explorer.constants.queryTimeout = 30 * 1000;
-OData.explorer.constants.defaultTop = 20;
+OData.explorer.constants.defaultTop = null;
 OData.explorer.constants.displayErrorMessageDuration = 20 * 1000;
 
 // The version.
@@ -1431,9 +1431,9 @@ OData.explorer.QueryBuilder.prototype._getReferringEntityIdFromNavigationPropert
 /// sometimes the name gets pluralized ex: Category -> Categories or it stays the same Account -> Account
 /// Hierarchical model:
 /// The path would be something like: 
-/// Service.svc/Item/Service.Server where âServerâ extends âDeviceâ which extends âItemâ 
+/// Service.svc/Item/Service.Server where Ã¢ÂÂServerÃ¢ÂÂ extends Ã¢ÂÂDeviceÃ¢ÂÂ which extends Ã¢ÂÂItemÃ¢ÂÂ 
 /// but the URL takes the form of .../Service.svc/<root base class>/<namespace>.<derived class> and 
-/// all the intermediate classes in the hierarchy are âignoredâ (with regards to the URL).
+/// all the intermediate classes in the hierarchy are Ã¢ÂÂignoredÃ¢ÂÂ (with regards to the URL).
 /// </summary>
 /// <param name ="entityId" type="Integer">The entity id.</param>
 /// <returns type="String">The entity name.</returns>
@@ -1532,31 +1532,68 @@ OData.explorer.DataExplorer = function (options) {
     var $queryBuilderForm = $('<form autocomplete="off" id="queryBuilderForm" />');
     this.$queryBuilder.append($queryBuilderForm);
     $queryBuilderForm.append($([
-        '<table style="width: 90%;"><tr><td style="vertical-align: top; width: 50%">',
-		'<label for="endpoints">Service Endpoint:</label>',
-        '<select id="endpoints"></select>',
-        '<div id="queryFilters">',
-            '<label for="top">Select:</label><select id="top"></select>',
-            '<label for="entities">Group:</label><select id="entities"></select>',
-			'</td><td style="vertical-align: top; width: 50%">',
-            '<div id="filtersConditions">',
-                '<div id="whereConditions" class="filterContainer">',
-                    '<label class="filterLabel">Where:</label><button id="addCondition" class="addCondition">+</button>',
-                '</div>',
-                '<div id="orderByConditions" class="filterContainer">',
-                    '<label class="filterLabel">Order by:</label><button id="addOrderByCondition" class="addCondition">+</button>',
-                    '<span id="orderByFiltersList" class="filterList"></span> ',
-                '</div>',
-                '<div id="selectConditions" class="filterContainer">',
-                    '<label class="filterLabel">Columns:</label><button id="addSelectCondition" class="addCondition">+</button>',
-                    '<span id="selectFiltersList" class="filterList"></span> ',
-                '</div>',
-                '<div id="expandConditions" class="filterContainer">',
-                    '<label class="filterLabel">Expand:</label><button id="addExpandCondition" class="addCondition">+</button>',
-                    '<span id="expandFiltersList" class="filterList"></span> ',
-                '</div>',
+        '<div class="row">',
+            '<div class="col-md-12">',
+                '<form role="form" id="myform">',
+                    '<div class="page-header">',
+                        '<h4>Service Selection</h4>',
+                    '</div>',
+                    
+                    '<div class="form-group">',
+                        '<label for="endpoints">Service Endpoint:</label>',
+                        '<select id="endpoints" class="form-control"></select>',
+                    '</div>',
+                    
+                    '<div id="queryFilters" class="form-group">',
+                        '<label for="top">Select:</label>',
+                        '<select id="top" class="form-control"></select>',
+                    '</div>',
+                    
+                    '<div class="form-group">',
+                        '<label for="entities">Group:</label>',
+                        '<select id="entities" class="form-control"></select>',
+                    '</div>',
+                    
+                    '<div class="page-header">',
+                        '<h4>Filters</h4>',
+                    '</div>',
+                    
+                    '<div id="filtersConditions" class="form-group">',
+                        '<div id="whereConditions" class="filterContainer">',
+                            '<label class="filterLabel">Where:</label>',
+                            '<button id="addCondition" class="addCondition">+</button>',
+                        '</div>',
+                    
+                        '<div id="orderByConditions" class="filterContainer form-group">',
+                            '<label class="filterLabel">Order by:</label>',
+                            '<button id="addOrderByCondition" class="addCondition">+</button>',
+                            '<span id="orderByFiltersList" class="filterList"></span> ',
+                        '</div>',
+                        
+                        '<div id="selectConditions" class="filterContainer form-group">',
+                            '<label class="filterLabel">Columns:</label>',
+                            '<button id="addSelectCondition" class="addCondition">+</button>',
+                            '<span id="selectFiltersList" class="filterList"></span> ',
+                        '</div>',
+                        
+                        '<div id="expandConditions" class="filterContainer form-group">',
+                            '<label class="filterLabel">Expand:</label>',
+                            '<button id="addExpandCondition" class="addCondition">+</button>',
+                            '<span id="expandFiltersList" class="filterList"></span> ',
+                        '</div>',
+                    '</div>',
+                    
+                    '<div class="page-header">',
+                        '<h4>Generated Query</h4>',
+                    '</div>',
+                    
+                    '<a id="queryUrl" href="/" target="_blank"></a>',
+                    
+                    '<div class="page-header">',
+                        '<h4>Data Browser</h4>',
+                    '</div>',
+                '</form>',
             '</div>',
-		'</td></tr><tr><td><div style="margin-top:20px;"><label for="queryUrl">Query:</label><a id="queryUrl" href="/" target="_blank"></a></div>',
         '</div>'].join('')));
     this.$whereConditions = $('#whereConditions', $queryBuilderForm);
 
@@ -1581,11 +1618,12 @@ OData.explorer.DataExplorer = function (options) {
     this.$skip = $('#skip', $queryBuilderForm);
     this.addOptions(
         [
+            { key: null, value: 'All' },
             { key: 1, value: 'top 1' },
             { key: 10, value: 'top 10' },
             { key: 20, value: 'top 20' },
             { key: 50, value: 'top 50' },
-            { key: 100, value: 'top 100' },
+            { key: 100, value: 'top 100' }
         ],
         this.$top);
     this.$endpoints = $('#endpoints', $queryBuilderForm);
@@ -1599,9 +1637,9 @@ OData.explorer.DataExplorer = function (options) {
     this.addOptions(endpointOptions, this.$endpoints);
 
     this.$queryBuilder.append([
-        '<div id="queryButtons">',
-            '<button id="submitQuery" class="buttonQuery">Search</button>',
-            '<button id="clearQuery" class="buttonQuery">Reset</button>',
+        '<div id="queryButtons" class="form-group">',
+            '<button id="submitQuery" class="btn btn-primary">Search</button>',
+            '<button id="clearQuery" class="btn btn-danger pull-right">Reset</button>',
         '</div>',
         '<div id="errorMessage" />'].join(''));
     this.$queryButtons = $('#queryButtons', this.$queryBuilder);
